@@ -22,6 +22,9 @@ const LoginForm = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     signInWithEmailAndPassword(formData.email, formData.password);
+    if (user) {
+      dispatch(authModalAction.closeAuthModal());
+    }
   };
   return (
     <>
@@ -47,11 +50,11 @@ const LoginForm = () => {
           onChange={handleChange}
           value={formData.password}
         />
-        {userError && (
+        {
           <p className="text-red-500 text-center text-sm">
-            {FirebaseErrors[userError?.message as keyof typeof FirebaseErrors]}
+            {userError?.message}
           </p>
-        )}
+        }
         <Button
           className="bg-primary text-primary-foreground rounded-full"
           isLoading={loading}

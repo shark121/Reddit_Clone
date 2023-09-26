@@ -7,18 +7,16 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
 } from "@/app/components/ui/dropdown-menu";
-import { authModalAction } from "@/app/store/slices/auth-modal-slice";
 import { AppDispatch } from "@/app/store/store";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { BsPlus } from "react-icons/bs";
 import { TiHome } from "react-icons/ti";
 import { useDispatch } from "react-redux";
+import { createCommunityModalAction } from "../../../../store/slices/create-community-modal";
 
 const CommunitiesMenu = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const handleOpenCommunityModal = () => {
-    dispatch(authModalAction.openAuthModal("CreateCommunity"));
-  };
+
   return (
     <>
       <DropdownMenu>
@@ -34,7 +32,7 @@ const CommunitiesMenu = () => {
           <DropdownMenuGroup>
             <DropdownMenuItem
               className="flex whitespace-nowrap gap-1 items-center cursor-pointer"
-              onClick={handleOpenCommunityModal}
+              onClick={() => dispatch(createCommunityModalAction.openModal())}
             >
               <BsPlus className="text-xl" />
               <p>Create Community</p>

@@ -5,13 +5,12 @@ import { AppDispatch } from "@/app/store/store";
 import { authModalAction } from "@/app/store/slices/auth-modal-slice";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/client-app";
+import { auth, firestore } from "@/app/firebase/client-app";
 import { Button } from "@nextui-org/react";
 import FirebaseErrors from "@/app/firebase/errors";
-import {
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { addDoc, collection } from "firebase/firestore";
+import { json } from "stream/consumers";
 
 const SignUpForm = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,21 +37,33 @@ const SignUpForm = () => {
       setFormError("Password must be at least 8 characters");
     }
     await createUserWithEmailAndPassword(formData.email, formData.password);
-    if (userError) {
-      setFormError(String(userError));
-    }
+
     if (!formError) {
       setFormData({
         email: "",
         password: "",
         confirmPassword: "",
       });
-      setFormError("");
     }
-    onAuthStateChanged(auth, (user) => {
-      user ? dispatch(authModalAction.closeAuthModal()) : null;
-    });
   };
+
+  useEffect(() => {
+    if (user) {
+      dispatch(authModalAction.closeAuthModal());
+    }
+  }, [user]);
+
+  const createUserDoc = async (user: User) => {
+    await addDoc(
+      collection(firestore, "users"),
+      JSON.parse(JSON.stringify(user))
+    );
+  };
+  useEffect(() => {
+    if (user) {
+      createUserDoc(user.user);
+    }
+  }, [user]);
 
   return (
     <>
@@ -87,15 +98,20 @@ const SignUpForm = () => {
           onChange={handleChange}
           value={formData.confirmPassword}
         />
-        {formError && (
-          <p className="text-red-500 text-center text-sm">
-            {FirebaseErrors[formError as keyof typeof FirebaseErrors]}
-          </p>
-        )}
+        <>
+          {formError || userError ? (
+            <p className="text-red-500 text-center text-sm">
+              {formError ||
+                FirebaseErrors[
+                  userError?.message as keyof typeof FirebaseErrors
+                ]}
+            </p>
+          ) : null}
+        </>
         <Button
           type="submit"
           className="rounded-full text-primary-foreground bg-primary"
-          disabled={loading}
+          isLoading={loading}
         >
           Sign Up
         </Button>

@@ -6,6 +6,7 @@ import { twMerge } from "tailwind-merge";
 import AppWrapper from "@/app/store/provider";
 import CustomNextUIProvider from "./components/providers/NextUI";
 import AuthModal from "./components/ui/modal";
+import CreateCommunity from "./components/layout/navbar/communities/create-community";
 
 const ibm = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({
           <CustomNextUIProvider>
             {children}
             <AuthModal />
+            <CreateCommunity />
           </CustomNextUIProvider>
         </AppWrapper>
       </body>
